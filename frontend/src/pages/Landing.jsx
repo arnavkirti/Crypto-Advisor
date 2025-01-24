@@ -1,6 +1,8 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const Landing = () => {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       <header className="bg-white shadow-md">
@@ -30,7 +32,9 @@ const Landing = () => {
             and risk assessments.
           </p>
           <a
-            href="#get-started"
+            onClick={() => {
+                navigate("/dashboard");
+            }}
             className="px-6 py-3 bg-white text-indigo-600 font-semibold rounded-md shadow-md hover:bg-indigo-50"
           >
             Get Started
