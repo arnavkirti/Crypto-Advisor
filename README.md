@@ -49,21 +49,21 @@ Ensure you have the following installed:
 ### Installation  
 
 1. Clone the repository:  
-   bash  
+   ```bash  
    git clone https://github.com/arnavkirti/Crypto-Advisor  
    cd Crypto-Advisor 
-    
+   ```
      
 
 2. Install dependencies:  
-   bash  
+   ```bash  
    npm install  
-     
+   ```  
 
 3. Start the development server:  
-   bash  
+   ```bash  
    npm start
-     
+   ```  
      
 
 4. Visit the app at http://localhost:5173 in your browser.  
