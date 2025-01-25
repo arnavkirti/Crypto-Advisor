@@ -1,88 +1,150 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  TrendingUpIcon,
+  ShieldIcon,
+  BrainIcon,
+  ChevronRightIcon,
+  GlobeIcon,
+  StarIcon,
+  CodeIcon,
+  DatabaseIcon,
+} from "lucide-react";
+
+const FeatureCard = ({ icon: Icon, title, description, color }) => (
+  <div className="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-2xl transform transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+    <div
+      className={`mb-4 w-16 h-16 rounded-full flex items-center justify-center ${color}`}
+    >
+      <Icon className="w-8 h-8 text-white" />
+    </div>
+    <h4 className="text-xl font-bold mb-3 text-white">{title}</h4>
+    <p className="text-white/70">{description}</p>
+  </div>
+);
 
 const Landing = () => {
   const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+
+  const features = [
+    {
+      icon: BrainIcon,
+      title: "AI-Powered Insights",
+      description:
+        "Advanced machine learning algorithms generate personalized investment strategies",
+      color: "bg-purple-600",
+    },
+    {
+      icon: ShieldIcon,
+      title: "Risk Management",
+      description:
+        "Comprehensive risk analysis with real-time market sentiment tracking",
+      color: "bg-blue-600",
+    },
+    {
+      icon: DatabaseIcon,
+      title: "Market Intelligence",
+      description:
+        "Aggregated data from multiple sources for holistic investment perspectives",
+      color: "bg-green-600",
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
-      <header className="bg-white shadow-md">
-        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-indigo-600">CryptoAdvisor</h1>
-          <nav className="space-x-6">
-            <a href="#about" className="text-gray-700 hover:text-indigo-600">
-              About
-            </a>
-            <a href="#features" className="text-gray-700 hover:text-indigo-600">
-              Features
-            </a>
-            <a href="#contact" className="text-gray-700 hover:text-indigo-600">
-              Contact
-            </a>
-          </nav>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-blue-900 text-white">
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-purple-900 to-blue-900 opacity-50 animate-gradient-x"></div>
+
+      <header className="relative z-10 container mx-auto px-6 py-6 flex justify-between items-center">
+        <div className="flex items-center">
+          <StarIcon className="w-8 h-8 text-yellow-400 mr-2" />
+          <h1 className="text-3xl font-bold text-white">CryptoAdvisor</h1>
         </div>
+        <nav className="space-x-6 flex items-center">
+          <a href="#features" className="hover:text-yellow-400 transition">
+            Features
+          </a>
+          <a href="#how-it-works" className="hover:text-yellow-400 transition">
+            How It Works
+          </a>
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="px-4 py-2 bg-yellow-500 text-black rounded-full hover:bg-yellow-400 transition flex items-center"
+          >
+            Launch App <ChevronRightIcon className="ml-2 w-5 h-5" />
+          </button>
+        </nav>
       </header>
 
-      <section className="flex-1 flex items-center justify-center text-center px-6 py-20 bg-gradient-to-r from-indigo-500 to-indigo-700 text-white">
+      <section className="relative z-10 container mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 items-center">
         <div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            Invest Smarter, Not Harder
+          <h2 className="text-5xl font-extrabold mb-6 leading-tight">
+            AI-Driven Crypto Investment Intelligence
           </h2>
-          <p className="text-lg md:text-xl mb-8">
-            Let AI guide your crypto investments with tailored recommendations
-            and risk assessments.
+          <p className="text-xl mb-8 text-white/80">
+            Leverage cutting-edge AI to transform your cryptocurrency investment
+            strategy with personalized, data-driven recommendations.
           </p>
-          <a
-            onClick={() => {
-                navigate("/dashboard");
-            }}
-            className="px-6 py-3 bg-white text-indigo-600 font-semibold rounded-md shadow-md hover:bg-indigo-50"
-          >
-            Get Started
-          </a>
+          <div className="flex space-x-4">
+            <input
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-yellow-500 flex-grow"
+            />
+            <button className="px-6 py-3 bg-yellow-500 text-black rounded-lg hover:bg-yellow-400 transition flex items-center">
+              Get Early Access <ChevronRightIcon className="ml-2 w-5 h-5" />
+            </button>
+          </div>
         </div>
-      </section>
-
-      <section id="features" className="py-20 bg-gray-50">
-        <div className="container mx-auto px-6">
-          <h3 className="text-3xl font-semibold text-center text-gray-800 mb-12">
-            Why Choose CryptoAdvisor?
-          </h3>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-white p-6 rounded-lg shadow-md text-center">
-              <h4 className="text-xl font-semibold mb-4 text-indigo-600">
-                AI-Powered Insights
-              </h4>
-              <p className="text-gray-600">
-                Get investment recommendations tailored to your goals and risk
-                profile.
-              </p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md text-center">
-              <h4 className="text-xl font-semibold mb-4 text-indigo-600">
-                Risk Assessment
-              </h4>
-              <p className="text-gray-600">
-                Understand the risks involved with a detailed analysis of your
-                portfolio.
-              </p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md text-center">
-              <h4 className="text-xl font-semibold mb-4 text-indigo-600">
-                Secure & Transparent
-              </h4>
-              <p className="text-gray-600">
-                Trust your investments with the latest blockchain technology.
-              </p>
-            </div>
+        <div className="hidden md:block">
+          <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 transform -rotate-3 hover:rotate-0 transition-transform duration-300">
+            <CodeIcon className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
+            <p className="text-center text-white/70">
+              Powered by advanced machine learning and blockchain technology
+            </p>
           </div>
         </div>
       </section>
 
-      <footer className="bg-gray-800 text-white py-6">
+      <section
+        id="features"
+        className="relative z-10 container mx-auto px-6 py-20"
+      >
+        <h3 className="text-4xl font-bold text-center mb-16">
+          Why CryptoAdvisor?
+        </h3>
+        <div className="grid md:grid-cols-3 gap-8">
+          {features.map((feature, index) => (
+            <FeatureCard key={index} {...feature} />
+          ))}
+        </div>
+      </section>
+
+      <footer className="relative z-10 bg-black/20 py-8">
         <div className="container mx-auto px-6 text-center">
-          <p>&copy; 2025 CryptoAdvisor. All rights reserved.</p>
+          <p className="text-white/70">
+            &copy; 2025 CryptoAdvisor. All rights reserved.
+          </p>
         </div>
       </footer>
+
+      <style jsx>{`
+        @keyframes gradient-x {
+          0%,
+          100% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+        }
+        .animate-gradient-x {
+          background-size: 200% 200%;
+          animation: gradient-x 15s ease infinite;
+        }
+      `}</style>
     </div>
   );
 };
