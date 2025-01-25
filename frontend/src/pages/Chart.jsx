@@ -1,121 +1,170 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
-import Chart from "chart.js/auto";
+import { Line } from "recharts";
+import { 
+  LineChart, 
+  XAxis, 
+  YAxis, 
+  Tooltip, 
+  ResponsiveContainer, 
+  CartesianGrid 
+} from "recharts";
+import { 
+  ArrowUpIcon, 
+  ArrowDownIcon, 
+  ChevronRightIcon 
+} from "lucide-react";
 
 const TradingChart = () => {
-  const [chartData, setChartData] = useState(null);
-  const chartRef = useRef(null);
-  const chartInstanceRef = useRef(null);
+  const [coinData, setCoinData] = useState(null);
+  const [historicalPrices, setHistoricalPrices] = useState([]);
+  const [selectedTimeframe, setSelectedTimeframe] = useState("24h");
   const location = useLocation();
+
+  const timeframes = [
+    { label: "24h", days: 1 },
+    { label: "7d", days: 7 },
+    { label: "30d", days: 30 },
+    { label: "1y", days: 365 }
+  ];
 
   useEffect(() => {
     const fetchCoinData = async () => {
       try {
-        const selectedOption = location.state?.selectedOption || "bitcoin";
-        const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${selectedOption.toLowerCase()}`;
-        const options = {
-          method: "GET",
-          headers: {
-            accept: "application/json",
-            "x-cg-demo-api-key": "CG-XvvE6tTN937KhpzvtCig5VF5",
-          },
-        };
+        const selectedCoin = location.state?.selectedOption?.toLowerCase() || "bitcoin";
+        
+        // Fetch current market data
+        const marketResponse = await axios.get(
+          `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${selectedCoin}`
+        );
+        const coin = marketResponse.data[0];
+        setCoinData(coin);
 
-        const response = await axios.get(url, options);
-        const coin = response.data[0];
-        setChartData(coin);
+        // Fetch historical price data
+        const historicalResponse = await axios.get(
+          `https://api.coingecko.com/api/v3/coins/${selectedCoin}/market_chart?vs_currency=usd&days=365`
+        );
+        
+        const processedHistoricalData = historicalResponse.data.prices.map(
+          ([timestamp, price]) => ({
+            date: new Date(timestamp).toLocaleDateString(),
+            price: parseFloat(price.toFixed(2))
+          })
+        );
+        
+        setHistoricalPrices(processedHistoricalData);
       } catch (error) {
         console.error("Error fetching coin data:", error);
       }
     };
 
     fetchCoinData();
+    const intervalId = setInterval(fetchCoinData, 60000); // Refresh every minute
+
+    return () => clearInterval(intervalId);
   }, [location.state]);
 
-  useEffect(() => {
-    if (chartData && chartRef.current) {
-      const ctx = chartRef.current.getContext("2d");
-
-      const labels = ["Current Price", "High 24h", "Low 24h"];
-      const values = [
-        chartData.current_price, 
-        chartData.high_24h, 
-        chartData.low_24h
-      ];
-
-      // Destroy existing chart if it exists
-      if (chartInstanceRef.current) {
-        chartInstanceRef.current.destroy();
-      }
-
-      // Create new chart instance
-      chartInstanceRef.current = new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels,
-          datasets: [
-            {
-              label: `${chartData.name} (USD)`,
-              data: values,
-              backgroundColor: ["#4caf50", "#2196f3", "#f44336"],
-              borderColor: ["#388e3c", "#1976d2", "#d32f2f"],
-              borderWidth: 1,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: true,
-              position: "top",
-            },
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              title: {
-                display: true,
-                text: "Price (USD)",
-              },
-            },
-          },
-        },
-      });
-    }
-
-    // Cleanup function to destroy the chart instance
-    return () => {
-      if (chartInstanceRef.current) {
-        chartInstanceRef.current.destroy();
-      }
-    };
-  }, [chartData]);
-
-  if (!chartData) {
-    return <div>Loading chart data...</div>;
+  if (!coinData) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-gradient-to-br from-blue-50 to-blue-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-20 w-20 border-t-4 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-xl text-gray-600">Loading cryptocurrency data...</p>
+        </div>
+      </div>
+    );
   }
 
+  const priceChange = coinData.price_change_percentage_24h;
+  const isPositive = priceChange >= 0;
+
   return (
-    <div className="container mx-auto p-6">
-      <h2 className="text-3xl font-bold mb-6 text-center">
-        {chartData.name} Trading Chart
-      </h2>
-      <div style={{ position: "relative", height: "400px", width: "100%" }}>
-        <canvas ref={chartRef}></canvas>
-      </div>
-      <div className="mt-6 text-center">
-        <p className="text-xl">
-          Current Price: ${chartData.current_price.toLocaleString()}
-        </p>
-        <p className="text-lg text-green-600">
-          24h High: ${chartData.high_24h.toLocaleString()}
-        </p>
-        <p className="text-lg text-red-600">
-          24h Low: ${chartData.low_24h.toLocaleString()}
-        </p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 p-6">
+      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 bg-gray-50 border-b">
+          <div className="flex items-center space-x-4">
+            <img 
+              src={coinData.image} 
+              alt={coinData.name} 
+              className="w-12 h-12 rounded-full"
+            />
+            <div>
+              <h2 className="text-3xl font-bold text-gray-800">
+                {coinData.name} ({coinData.symbol.toUpperCase()})
+              </h2>
+              <div className="flex items-center space-x-2 mt-1">
+                <p className="text-2xl font-semibold">
+                  ${coinData.current_price.toLocaleString()}
+                </p>
+                <div className={`flex items-center ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+                  {isPositive ? <ArrowUpIcon size={20} /> : <ArrowDownIcon size={20} />}
+                  <span className="ml-1">
+                    {Math.abs(priceChange).toFixed(2)}%
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex space-x-2">
+            {timeframes.map((tf) => (
+              <button
+                key={tf.label}
+                onClick={() => setSelectedTimeframe(tf.label)}
+                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                  selectedTimeframe === tf.label 
+                    ? 'bg-blue-500 text-white' 
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                {tf.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Chart */}
+        <div className="p-6 h-[500px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={historicalPrices}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+              <XAxis dataKey="date" />
+              <YAxis 
+                domain={['auto', 'auto']} 
+                tickFormatter={(value) => `$${value}`} 
+              />
+              <Tooltip 
+                formatter={(value) => [`$${value}`, 'Price']}
+                labelClassName="text-gray-700 font-semibold"
+              />
+              <Line 
+                type="monotone" 
+                dataKey="price" 
+                stroke="#3B82F6" 
+                strokeWidth={3}
+                dot={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Additional Market Data */}
+        <div className="grid grid-cols-3 gap-4 p-6 bg-gray-50 border-t">
+          {[
+            { label: "Market Cap", value: coinData.market_cap.toLocaleString() },
+            { label: "24h High", value: coinData.high_24h.toLocaleString(), color: "text-green-600" },
+            { label: "24h Low", value: coinData.low_24h.toLocaleString(), color: "text-red-600" }
+          ].map((item) => (
+            <div key={item.label} className="text-center">
+              <p className="text-sm text-gray-500 mb-1">{item.label}</p>
+              <p className={`text-xl font-semibold ${item.color || 'text-gray-800'}`}>
+                ${item.value}
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
