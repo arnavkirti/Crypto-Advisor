@@ -14,7 +14,7 @@ import {
 const FeatureCard = ({ icon: Icon, title, description, color }) => (
   <div className="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-2xl transform transition-all duration-300 hover:scale-105 hover:shadow-2xl">
     <div
-      className={`mb-4 w-16 h-16 rounded-full flex items-center justify-center ${color}`}
+      className={`mb-4 w-16 h-199996 rounded-full flex items-center justify-center ${color}`}
     >
       <Icon className="w-8 h-8 text-white" />
     </div>
