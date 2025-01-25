@@ -1,0 +1,85 @@
+# Flow specification version
+version: "0.1.0"
+
+# Flow metadata and configuration
+metadata:
+  flow_type: "compound"
+  name: "Crypto-Advisor"
+  description: "It predicts where to invest your money"
+  author: "nit-inn"
+  tags: [Cryto, investment, finance]
+  private: false
+
+# Primary input definitions
+inputs:
+  prime_input_1:
+    type: string
+    description: "It is the amount to be invested"
+    required: true
+    example: "1000"
+
+
+# Workflow definition
+workflow:
+  first_flow:
+    type: "custom"
+    inputs:
+      input1: ${inputs.prime_input_1}
+    model:
+      provider: "openai"
+      name: "gpt-4o"
+    dataset:
+      source: "nit-inn/market-data"
+    prompt: |
+      Please generate a diversified investment portfolio using the following format for any 3 cryptocurrencies, 3 crypto tokens, and 3 NFTs:
+
+      "cryptocurrencies":
+       - name: "<Cryptocurrency Name>"
+         symbol: "<Symbol>"
+          allocation_percentage: <percentage>
+       - name: "<Cryptocurrency Name>"
+        symbol: "<Symbol>"
+        allocation_percentage: <percentage>
+       - name: "<Cryptocurrency Name>"
+         symbol: "<Symbol>"
+         allocation_percentage: <percentage>
+
+        do same for crypto tokens and NFT's.
+        Ensure the total allocation percentages for each category (cryptocurrencies, crypto tokens, NFTs) sum up to exactly 100%. The total sum of all categories combined should be 100%.
+        do not provide any other textual output other than this format.
+
+  second_flow:
+    type: "custom"
+    depends_on: [first_flow]
+    inputs:
+      input1: ${first_flow.output}
+      
+    model:
+      provider: "openai"
+      name: "gpt-4o"
+
+    prompt: |
+      Give any relevant news that you have about "Blockchain","Tokens" and "NFT" in about 1-2 lines each.
+
+# Output configuration
+output:
+  value:
+    - ${first_flow.output}
+    - ${second_flow.output}
+
+# Flow documentation
+readme: |
+
+### Workflow Overview:
+1. **First Flow**: Generates a diversified investment portfolio by selecting 3 cryptocurrencies, 3 crypto tokens, and 3 NFTs. It allocates a percentage to each asset, The selection and allocation are based on relevant data, trends, and risk-return considerations.
+2. **Second Flow**: After the first flow completes, this flow fetches the latest market news for "Blockchain," "Tokens," and "NFTs," providing a brief 1-2 line update for each.
+3. **Outputs**: The final output combines the portfolio details and the relevant market news, providing a comprehensive investment recommendation.
+
+### Key Features:
+1. **Diversified Portfolio**: Balances assets across different categories (Cryptocurrencies, Crypto Tokens, NFTs).
+2. **Real-time Insights**: Fetches up-to-date market news to inform investment decisions.
+2. **Efficient Allocation**: Ensures allocation is optimal, while factoring in risk and return.
+
+# ### Outputs:
+# 1. Portfolio details with allocation percentages for each asset.
+# 2. Brief updates on the current market trends for Blockchain, Tokens, and NFTs.
