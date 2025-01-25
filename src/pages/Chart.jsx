@@ -168,9 +168,6 @@ const TradingChart = () => {
             </div>
           ))}
         </div>
-          <button onClick={()=> {
-            navigate('/create-event')
-          }}>Create Event</button>
       </div>
     </div>
   );

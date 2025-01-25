@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
@@ -10,9 +10,30 @@ import {
 } from "lucide-react";
 
 const Dashboard = () => {
-  const [recommendations, setRecommendations] = useState([]);
-  const [marketNews, setMarketNews] = useState([]);
-  const [diversificationOptions, setDiversificationOptions] = useState([]);
+  const [recommendations, setRecommendations] = useState([
+    { id: 1, type: "Blockchain", investment: "30%" },
+    { id: 2, type: "Tokens", investment: "40%" },
+    { id: 3, type: "NFTs", investment: "30%" },
+  ]);
+  const [marketNews, setMarketNews] = useState([
+    {
+      id: 1,
+      title: "Bitcoin Halving Approaches",
+      impact: "High",
+      description: "Major market event expected to influence crypto prices",
+    },
+    {
+      id: 2,
+      title: "Ethereum ETF Approval",
+      impact: "Medium",
+      description: "Potential institutional investment surge",
+    },
+  ]);
+  const [diversificationOptions, setDiversificationOptions] = useState([
+    { type: "Blockchain", options: ["Ethereum", "Solana"] },
+    { type: "Tokens", options: ["Bitcoin", "Chainlink"] },
+    { type: "NFTs", options: ["Bored Ape Yacht Club", "CryptoPunks"] },
+  ]);
   const [investmentAmount, setInvestmentAmount] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -48,13 +69,7 @@ const Dashboard = () => {
           investment: `${crypto.allocation_percentage}%`,
         })
       );
-      setRecommendations(
-        cryptoRecommendations || [
-          { id: 1, type: "Blockchain", investment: "30%" },
-          { id: 2, type: "Tokens", investment: "40%" },
-          { id: 3, type: "NFTs", investment: "30%" },
-        ]
-      );
+      setRecommendations(cryptoRecommendations);
 
       // Parse market news from second_flow
       const newsItems = response.data.second_flow
@@ -74,23 +89,7 @@ const Dashboard = () => {
           description: item.split(": ")[1],
           impact: index === 0 ? "High" : index === 1 ? "Medium" : "Low",
         }));
-      setMarketNews(
-        newsItems || [
-          {
-            id: 1,
-            title: "Bitcoin Halving Approaches",
-            impact: "High",
-            description:
-              "Major market event expected to influence crypto prices",
-          },
-          {
-            id: 2,
-            title: "Ethereum ETF Approval",
-            impact: "Medium",
-            description: "Potential institutional investment surge",
-          },
-        ]
-      );
+      setMarketNews(newsItems);
 
       // Create diversification options from first_flow
       const diverseOptions = [
@@ -107,13 +106,7 @@ const Dashboard = () => {
           options: flowData.NFTs.map((nft) => nft.name),
         },
       ];
-      setDiversificationOptions(
-        diverseOptions || [
-          { type: "Blockchain", options: ["Ethereum", "Solana"] },
-          { type: "Tokens", options: ["Bitcoin", "Chainlink"] },
-          { type: "NFTs", options: ["Bored Ape Yacht Club", "CryptoPunks"] },
-        ]
-      );
+      setDiversificationOptions(diverseOptions);
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
       alert("Failed to fetch data. Please try again.");
@@ -172,49 +165,42 @@ const Dashboard = () => {
               </div>
             </div>
             {/* Investment Recommendations */}
-            {recommendations.length > 0 && (
-              <div>
-                <h3 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
-                  <PieChartIcon className="mr-3 text-green-500" />
-                  Investment Recommendations
-                </h3>
-                <div className="grid md:grid-cols-3 gap-4">
-                  {recommendations.map((rec) => (
-                    <div
-                      key={rec.id}
-                      className="bg-gray-50 p-4 rounded-xl hover:shadow-md transition"
-                    >
-                      <p className="font-semibold text-gray-700">{rec.type}</p>
-                      <p className="text-blue-600 font-bold">
-                        {rec.investment}
-                      </p>
-                    </div>
-                  ))}
-                </div>
+            <div>
+              <h3 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                <PieChartIcon className="mr-3 text-green-500" />
+                Investment Recommendations
+              </h3>
+              <div className="grid md:grid-cols-3 gap-4">
+                {recommendations.map((rec) => (
+                  <div
+                    key={rec.id}
+                    className="bg-gray-50 p-4 rounded-xl hover:shadow-md transition"
+                  >
+                    <p className="font-semibold text-gray-700">{rec.type}</p>
+                    <p className="text-blue-600 font-bold">{rec.investment}</p>
+                  </div>
+                ))}
               </div>
-            )}
+            </div>
           </div>
         </div>
         {/* Market News & Diversification */}
         <div className="space-y-6">
           {/* Market News */}
-          {marketNews.length > 0 && (
-            <div className="bg-white rounded-2xl shadow-xl p-6">
-              <h3 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
-                <NewspaperIcon className="mr-3 text-red-500" />
-                Market News
-              </h3>
-              {marketNews.map((news) => (
-                <div
-                  key={news.id}
-                  className="mb-4 pb-4 border-b border-gray-200 last:border-b-0"
-                >
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="font-semibold text-gray-700">
-                      {news.title}
-                    </h4>
-                    <span
-                      className={`
+          <div className="bg-white rounded-2xl shadow-xl p-6">
+            <h3 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+              <NewspaperIcon className="mr-3 text-red-500" />
+              Market News
+            </h3>
+            {marketNews.map((news) => (
+              <div
+                key={news.id}
+                className="mb-4 pb-4 border-b border-gray-200 last:border-b-0"
+              >
+                <div className="flex justify-between items-center mb-2">
+                  <h4 className="font-semibold text-gray-700">{news.title}</h4>
+                  <span
+                    className={`
                       px-2 py-1 rounded-full text-xs font-bold
                       ${
                         news.impact === "High"
@@ -224,43 +210,40 @@ const Dashboard = () => {
                           : "bg-green-100 text-green-600"
                       }
                     `}
-                    >
-                      {news.impact}
-                    </span>
-                  </div>
-                  <p className="text-gray-500 text-sm">{news.description}</p>
+                  >
+                    {news.impact}
+                  </span>
                 </div>
-              ))}
-            </div>
-          )}
+                <p className="text-gray-500 text-sm">{news.description}</p>
+              </div>
+            ))}
+          </div>
           {/* Diversification */}
-          {diversificationOptions.length > 0 && (
-            <div className="bg-white rounded-2xl shadow-xl p-6">
-              <h3 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
-                <LinkIcon className="mr-3 text-purple-500" />
-                Diversification
-              </h3>
-              {diversificationOptions.map((option) => (
-                <div key={option.type} className="mb-4">
-                  <p className="font-semibold text-gray-700 mb-2">
-                    {option.type}
-                  </p>
-                  <div className="space-y-2">
-                    {option.options.map((item) => (
-                      <div
-                        key={item}
-                        onClick={() => handleDiversificationClick(item)}
-                        className="flex items-center bg-gray-50 p-3 rounded-lg cursor-pointer hover:bg-blue-50 transition"
-                      >
-                        <span className="w-2 h-2 mr-3 bg-blue-500 rounded-full"></span>
-                        <span className="text-gray-700">{item}</span>
-                      </div>
-                    ))}
-                  </div>
+          <div className="bg-white rounded-2xl shadow-xl p-6">
+            <h3 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+              <LinkIcon className="mr-3 text-purple-500" />
+              Diversification
+            </h3>
+            {diversificationOptions.map((option) => (
+              <div key={option.type} className="mb-4">
+                <p className="font-semibold text-gray-700 mb-2">
+                  {option.type}
+                </p>
+                <div className="space-y-2">
+                  {option.options.map((item) => (
+                    <div
+                      key={item}
+                      onClick={() => handleDiversificationClick(item)}
+                      className="flex items-center bg-gray-50 p-3 rounded-lg cursor-pointer hover:bg-blue-50 transition"
+                    >
+                      <span className="w-2 h-2 mr-3 bg-blue-500 rounded-full"></span>
+                      <span className="text-gray-700">{item}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          )}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
