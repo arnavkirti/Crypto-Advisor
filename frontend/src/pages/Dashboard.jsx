@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Dashboard = () => {
   const [recommendations, setRecommendations] = useState([]);
@@ -10,29 +11,44 @@ const Dashboard = () => {
 
   useEffect(() => {
     const fetchRecommendations = async () => {
-      const aiRecommendations = [
-        { id: 1, type: "Blockchain", investment: "30%" },
-        { id: 2, type: "Tokens", investment: "40%" },
-        { id: 3, type: "NFTs", investment: "30%" },
-      ];
-      const aiRiskAnalysis = [
-        { type: "Blockchain", risk: "Moderate" },
-        { type: "Tokens", risk: "High" },
-        { type: "NFTs", risk: "Low" },
-      ];
-      const aiDiversificationOptions = [
-        { type: "Blockchain", options: ["Ethereum", "Solana"] },
-        { type: "Tokens", options: ["Bitcoin", "Chainlink"] },
-        { type: "NFTs", options: ["Bored Ape Yacht Club", "CryptoPunks"] },
-      ];
+      try {
+        // Replace with actual MIRA Flows API call
+        // const response = await axios.get('/api/mira-flows/recommendations');
+        
+        setRecommendations(response.data.recommendations);
+        setRiskAnalysis(response.data.riskAnalysis);
+        setDiversificationOptions(response.data.diversificationOptions);
+      } catch (error) {
+        console.error("Error fetching recommendations:", error);
+        // Fallback to static data
+        const aiRecommendations = [
+          { id: 1, type: "Blockchain", investment: "30%" },
+          { id: 2, type: "Tokens", investment: "40%" },
+          { id: 3, type: "NFTs", investment: "30%" },
+        ];
+        const aiRiskAnalysis = [
+          { type: "Blockchain", risk: "Moderate" },
+          { type: "Tokens", risk: "High" },
+          { type: "NFTs", risk: "Low" },
+        ];
+        const aiDiversificationOptions = [
+          { type: "Blockchain", options: ["Ethereum", "Solana"] },
+          { type: "Tokens", options: ["Bitcoin", "Chainlink"] },
+          { type: "NFTs", options: ["Bored Ape Yacht Club", "CryptoPunks"] },
+        ];
 
-      setRecommendations(aiRecommendations);
-      setRiskAnalysis(aiRiskAnalysis);
-      setDiversificationOptions(aiDiversificationOptions);
+        setRecommendations(aiRecommendations);
+        setRiskAnalysis(aiRiskAnalysis);
+        setDiversificationOptions(aiDiversificationOptions);
+      }
     };
 
     fetchRecommendations();
   }, []);
+
+  const handleDiversificationClick = (option) => {
+    navigate("/chart", { state: { selectedOption: option } });
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center p-6">
@@ -55,7 +71,7 @@ const Dashboard = () => {
             </div>
             <button
               onClick={() => {
-                navigate("/")
+                navigate("/");
               }}
               className="w-36 py-3 bg-indigo-600 text-white rounded-xl shadow-md hover:bg-indigo-700 transition-colors duration-300"
             >
@@ -64,6 +80,7 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {/* Recommendations Section */}
         <div className="mb-10">
           <h3 className="text-2xl font-semibold text-gray-800 mb-6">
             Investment Recommendations
@@ -83,6 +100,7 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {/* Risk Analysis Section */}
         <div className="mb-10">
           <h3 className="text-2xl font-semibold text-gray-800 mb-6">
             Risk Analysis
@@ -112,6 +130,7 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {/* Diversification Options Section */}
         <div className="mb-10">
           <h3 className="text-2xl font-semibold text-gray-800 mb-6">
             Diversification Options
@@ -127,7 +146,11 @@ const Dashboard = () => {
                 </span>
                 <ul className="mt-4 space-y-2 text-lg text-gray-600">
                   {option.options.map((item, index) => (
-                    <li key={index} className="flex items-center">
+                    <li 
+                      key={index} 
+                      className="flex items-center cursor-pointer hover:text-indigo-600"
+                      onClick={() => handleDiversificationClick(item)}
+                    >
                       <span className="inline-block w-2.5 h-2.5 mr-3 bg-indigo-500 rounded-full"></span>
                       {item}
                     </li>
