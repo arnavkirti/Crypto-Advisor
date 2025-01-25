@@ -15,6 +15,7 @@ import {
   ArrowDownIcon, 
   ChevronRightIcon 
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const TradingChart = () => {
   const [coinData, setCoinData] = useState(null);
@@ -28,6 +29,8 @@ const TradingChart = () => {
     { label: "30d", days: 30 },
     { label: "1y", days: 365 }
   ];
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCoinData = async () => {
@@ -165,6 +168,9 @@ const TradingChart = () => {
             </div>
           ))}
         </div>
+          <button onClick={()=> {
+            navigate('/create-event')
+          }}>Create Event</button>
       </div>
     </div>
   );

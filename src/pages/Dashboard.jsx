@@ -22,33 +22,55 @@ const Dashboard = () => {
       try {
         setIsLoading(true);
         // Replace with actual MIRA Flows API call
-        const response = await axios.get('/api/mira-flows/dashboard');
-        
-        setRecommendations(response.data.recommendations || [
-          { id: 1, type: "Blockchain", investment: "30%" },
-          { id: 2, type: "Tokens", investment: "40%" },
-          { id: 3, type: "NFTs", investment: "30%" },
+        const response = await axios.post("https://flow-api.mira.network/v1/flows/flows/nit-inn/Crypto-Advisor?version=0.1.0", {
+          input: {
+            prime_input_1: investmentAmount || "10000"
+          }
+        }, {
+          headers: {
+            "content-type": "application/json",
+            "miraauthorization": "sb-a2dd44e757cb699ab7c6531462438b7a"
+          }
+        });
+
+        const cleanResponse = response.data.result.replace(/```json\n|\n```/g, ''); // Remove the markdown syntax
+
+        const { first_flow, second_flow, result } = cleanResponse;
+
+        const firstFlowData = JSON.parse(first_flow);
+        const secondFlowData = second_flow;
+
+        setRecommendations([
+          { id: 1, type: "Cryptocurrencies", investment: `${firstFlowData.cryptocurrencies[0].allocation_percentage}%` },
+          { id: 2, type: "Tokens", investment: `${firstFlowData.crypto_tokens[0].allocation_percentage}%` },
+          { id: 3, type: "NFTs", investment: `${firstFlowData.NFTs[0].allocation_percentage}%` },
         ]);
 
-        setMarketNews(response.data.marketNews || [
+        setMarketNews([
           { 
             id: 1, 
-            title: "Bitcoin Halving Approaches", 
+            title: "Blockchain", 
             impact: "High", 
-            description: "Major market event expected to influence crypto prices" 
+            description: secondFlowData.split("\n")[1]
           },
           { 
             id: 2, 
-            title: "Ethereum ETF Approval", 
+            title: "Tokens", 
             impact: "Medium", 
-            description: "Potential institutional investment surge" 
+            description: secondFlowData.split("\n")[3]
+          },
+          { 
+            id: 3, 
+            title: "NFT", 
+            impact: "Low", 
+            description: secondFlowData.split("\n")[5]
           },
         ]);
 
-        setDiversificationOptions(response.data.diversificationOptions || [
-          { type: "Blockchain", options: ["Ethereum", "Solana"] },
-          { type: "Tokens", options: ["Bitcoin", "Chainlink"] },
-          { type: "NFTs", options: ["Bored Ape Yacht Club", "CryptoPunks"] },
+        setDiversificationOptions([
+          { type: "Cryptocurrencies", options: firstFlowData.cryptocurrencies.map(item => item.name) },
+          { type: "Tokens", options: firstFlowData.crypto_tokens.map(item => item.name) },
+          { type: "NFTs", options: firstFlowData.NFTs.map(item => item.name) },
         ]);
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
@@ -58,7 +80,7 @@ const Dashboard = () => {
     };
 
     fetchDashboardData();
-  }, []);
+  }, [investmentAmount]);
 
   const handleDiversificationClick = (option) => {
     navigate("/chart", { state: { selectedOption: option } });
